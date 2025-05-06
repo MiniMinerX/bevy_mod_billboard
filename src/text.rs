@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 use crate::pipeline::{RenderBillboardImage, RenderBillboardMesh};
 use crate::utils::calculate_billboard_uniform;
 use crate::{BillboardDepth, BillboardLockAxis, BillboardText, BillboardTextNeedsRerender};
 use bevy::color::palettes;
+use bevy::platform::collections::HashSet;
 use bevy::prelude::*;
 use bevy::render::mesh::{Indices, PrimitiveTopology};
 use bevy::render::render_asset::RenderAssetUsages;
@@ -12,7 +15,6 @@ use bevy::text::{
     ComputedTextBlock, CosmicFontSystem, FontAtlasSets, PositionedGlyph, SwashCache, TextBounds,
     TextLayoutInfo, TextPipeline, TextReader, YAxisOrientation,
 };
-use bevy::utils::{HashMap, HashSet};
 use smallvec::SmallVec;
 
 // Uses this as reference
@@ -279,10 +281,10 @@ pub(crate) fn update_billboard_text_layout(
 /// for changed colors on root text components or child span components.
 pub(crate) fn detect_billboard_text_color_change(
     changed_roots: Query<Entity, (Changed<TextColor>, With<BillboardText>)>,
-    changed_spans: Query<&Parent, (Changed<TextColor>, With<TextSpan>)>,
+    changed_spans: Query<&ChildOf, (Changed<TextColor>, With<TextSpan>)>,
     mut computed: Query<(
         Entity,
-        Option<&Parent>,
+        Option<&ChildOf>,
         Has<ComputedTextBlock>,
         Has<TextSpan>,
     )>,
@@ -293,7 +295,7 @@ pub(crate) fn detect_billboard_text_color_change(
 
     // check for root changes
     for root in &changed_roots {
-        let Some(mut ent) = commands.get_entity(root) else {
+        let Ok(mut ent) = commands.get_entity(root) else {
             continue;
         };
         ent.insert(BillboardTextNeedsRerender);
@@ -301,7 +303,7 @@ pub(crate) fn detect_billboard_text_color_change(
 
     // check for span changes
     for span_parent in &changed_spans {
-        let mut parent: Entity = **span_parent;
+        let mut parent: Entity = span_parent.parent();
 
         loop {
             let Ok((ent, maybe_parent, has_computed, has_span)) = computed.get_mut(parent) else {
@@ -321,7 +323,7 @@ pub(crate) fn detect_billboard_text_color_change(
                 break;
             };
 
-            parent = **next_parent;
+            parent = next_parent.parent();
         }
     }
 }

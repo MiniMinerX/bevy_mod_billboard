@@ -48,7 +48,7 @@ impl Plugin for BillboardPlugin {
                     )
                         .chain()
                         .ambiguous_with(CameraUpdateSystem),
-                    check_visibility::<With<Billboard>>.in_set(CheckVisibility),
+                    //check_visibility::<With<Billboard>>.in_set(CheckVisibility),
                 ),
             );
     }

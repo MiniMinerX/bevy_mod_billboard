@@ -8,6 +8,7 @@ use bevy::ecs::system::{SystemParamItem, SystemState};
 use bevy::image::BevyDefault;
 use bevy::log::error;
 use bevy::math::Mat4;
+use bevy::platform::collections::HashMap;
 use bevy::prelude::{
     default, AssetEvent, Commands, Component, Entity, FromWorld, Image, Mesh, Msaa, Query, Res,
     ResMut, Resource, With, World,
@@ -36,7 +37,6 @@ use bevy::render::view::{
     ExtractedView, RenderVisibleEntities, ViewTarget, ViewUniform, ViewUniformOffset, ViewUniforms,
 };
 use bevy::sprite::SpriteAssetEvents;
-use bevy::utils;
 
 #[derive(Clone, Copy, ShaderType, Component)]
 pub struct BillboardUniform {
@@ -55,7 +55,7 @@ pub struct RenderBillboardImage {
 
 #[derive(Resource, Default)]
 pub struct BillboardImageBindGroups {
-    values: utils::HashMap<AssetId<Image>, BindGroup>,
+    values: HashMap<AssetId<Image>, BindGroup>,
 }
 
 #[derive(Resource)]
@@ -178,7 +178,7 @@ pub fn queue_billboard_texture(
     }
 
     for (view_entity, view, visible_entities, msaa) in &mut views {
-        let Some(transparent_phase) = transparent_render_phases.get_mut(&view_entity) else {
+        let Some(transparent_phase) = transparent_render_phases.get_mut(&view.retained_view_entity) else {
             continue;
         };
 
@@ -256,7 +256,8 @@ pub fn queue_billboard_texture(
                 entity: *visible_entity,
                 draw_function: draw_transparent_billboard,
                 batch_range: 0..1,
-                extra_index: PhaseItemExtraIndex::NONE,
+                extra_index: PhaseItemExtraIndex::None,
+                indexed: true,
                 distance,
             });
         }

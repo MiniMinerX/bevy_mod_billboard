@@ -57,7 +57,7 @@ fn move_cube(
 
     let direction_vec = if *direction { Vec3::Z } else { Vec3::NEG_Z };
 
-    parent_cube.translation += time.delta_secs() * direction_vec;
+    parent_cube.unwrap().translation += time.delta_secs() * direction_vec;
     *accumulated += time.delta_secs();
 
     if *accumulated >= 2.0 {

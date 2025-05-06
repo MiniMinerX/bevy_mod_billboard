@@ -58,7 +58,7 @@ fn setup_scene(
 }
 
 fn rotate_camera(mut camera: Query<&mut Transform, With<CameraHolder>>, time: Res<Time>) {
-    let mut camera = camera.single_mut();
+    let mut camera: Mut<'_, Transform> = camera.single_mut().unwrap();
 
     camera.rotate_y(time.delta_secs());
 }

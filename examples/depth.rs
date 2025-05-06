@@ -23,6 +23,7 @@ fn setup_billboard(mut commands: Commands, asset_server: Res<AssetServer>) {
         TextColor(Color::WHITE),
         TextLayout::new_with_justify(JustifyText::Center),
         Transform::from_xyz(0.0, 0.5, 0.0).with_scale(TEXT_SCALE),
+        Visibility::default(),
     ));
 
     commands.spawn((
@@ -32,6 +33,7 @@ fn setup_billboard(mut commands: Commands, asset_server: Res<AssetServer>) {
         TextColor(Color::WHITE),
         TextLayout::new_with_justify(JustifyText::Center),
         Transform::from_xyz(0.0, -0.5, 0.0).with_scale(TEXT_SCALE),
+        Visibility::default(),
     ));
 }
 
@@ -46,10 +48,15 @@ fn setup_scene(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    commands.spawn(CameraHolder).with_children(|parent| {
+    commands.spawn((
+        CameraHolder,
+        Transform::default(),
+        Visibility::default(),
+    )).with_children(|parent| {
         parent.spawn((
             Camera3d::default(),
             Transform::from_xyz(5., 0., 0.).looking_at(Vec3::ZERO, Vec3::Y),
+            Visibility::default(),
         ));
     });
 
@@ -57,11 +64,12 @@ fn setup_scene(
         Mesh3d(meshes.add(Cuboid::default())),
         MeshMaterial3d(materials.add(Color::Srgba(palettes::css::BEIGE))),
         Transform::from_xyz(1., 0., 0.),
+        Visibility::default(),
     ));
 }
 
 fn rotate_camera(mut camera: Query<&mut Transform, With<CameraHolder>>, time: Res<Time>) {
-    let mut camera = camera.single_mut();
+    let mut camera: Mut<'_, Transform> = camera.single_mut().unwrap();
 
     camera.rotate_y(time.delta_secs());
 }
