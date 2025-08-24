@@ -5,13 +5,14 @@ pub mod texture;
 mod utils;
 
 use crate::text::{BillboardTextBounds, BillboardTextHandles};
+use bevy::asset::uuid_handle;
 use bevy::prelude::*;
 use bevy::render::extract_component::ExtractComponent;
 use bevy::sprite::Anchor;
 use bevy::text::{TextRoot, TextSpanAccess};
 
 pub(self) const BILLBOARD_SHADER_HANDLE: Handle<Shader> =
-    Handle::weak_from_u128(12823766040132746076);
+    uuid_handle!("12823766-0401-3274-6076-000000000000");
 
 /// Marker component for a billboarded texture.
 ///

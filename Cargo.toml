@@ -20,10 +20,11 @@ smallvec = "1.11.0"
 bitflags = "2.9"
 
 # see bevy #16563
-bevy_internal = { version = "0.16", features = ["bevy_image"] }
+bevy_internal = { version = "0.17.0-dev", git = "https://github.com/bevyengine/bevy.git", features = ["bevy_image"] }
 
 [dependencies.bevy]
-version = "0.16"
+version = "0.17.0-dev"
+git = "https://github.com/bevyengine/bevy.git"
 default-features = false
 features = [
     "bevy_core_pipeline",
@@ -31,11 +32,13 @@ features = [
     "bevy_asset",
     "bevy_text",
     "bevy_sprite",
+    "bevy_sprite_render",
     "bevy_winit",
     "x11",
     "wayland",
     "bevy_log",
 ]
 
-[dev-dependencies]
-bevy = "0.16"
+[dev-dependencies.bevy]
+git = "https://github.com/bevyengine/bevy.git"
+version = "0.17.0-dev"

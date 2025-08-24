@@ -1,6 +1,6 @@
 use crate::text::RenderBillboard;
 use crate::{Billboard, BILLBOARD_SHADER_HANDLE};
-use bevy::asset::AssetId;
+use bevy::asset::{AssetId, Assets};
 use bevy::core_pipeline::core_3d::Transparent3d;
 use bevy::ecs::query::ROQueryItem;
 use bevy::ecs::system::lifetimeless::{Read, SRes};
@@ -8,6 +8,7 @@ use bevy::ecs::system::{SystemParamItem, SystemState};
 use bevy::image::BevyDefault;
 use bevy::log::error;
 use bevy::math::Mat4;
+use bevy::mesh::{MeshVertexBufferLayoutRef, PrimitiveTopology};
 use bevy::platform::collections::HashMap;
 use bevy::prelude::{
     default, AssetEvent, Commands, Component, Entity, FromWorld, Image, Mesh, Msaa, Query, Res,
@@ -15,8 +16,7 @@ use bevy::prelude::{
 };
 use bevy::render::extract_component::{ComponentUniforms, DynamicUniformIndex};
 use bevy::render::mesh::allocator::MeshAllocator;
-use bevy::render::mesh::{
-    MeshVertexBufferLayoutRef, PrimitiveTopology, RenderMesh, RenderMeshBufferInfo,
+use bevy::render::mesh::{ RenderMesh, RenderMeshBufferInfo,
 };
 use bevy::render::render_asset::RenderAssets;
 use bevy::render::render_phase::{
@@ -36,7 +36,7 @@ use bevy::render::texture::GpuImage;
 use bevy::render::view::{
     ExtractedView, RenderVisibleEntities, ViewTarget, ViewUniform, ViewUniformOffset, ViewUniforms,
 };
-use bevy::sprite::SpriteAssetEvents;
+use bevy::sprite_render::SpriteAssetEvents;
 
 #[derive(Clone, Copy, ShaderType, Component)]
 pub struct BillboardUniform {
@@ -170,11 +170,11 @@ pub fn queue_billboard_texture(
         match event {
             AssetEvent::Unused { .. }
             | AssetEvent::Added { .. }
-            | AssetEvent::LoadedWithDependencies { .. } => None,
+            | AssetEvent::LoadedWithDependencies { .. } => {},
             AssetEvent::Modified { id } | AssetEvent::Removed { id } => {
-                image_bind_groups.values.remove(id)
+                image_bind_groups.values.remove(id);
             }
-        };
+        }
     }
 
     for (view_entity, view, visible_entities, msaa) in &mut views {
@@ -384,13 +384,13 @@ impl SpecializedMeshPipeline for BillboardPipeline {
             ],
             vertex: VertexState {
                 shader: BILLBOARD_SHADER_HANDLE,
-                entry_point: "vertex".into(),
+                entry_point: Some("vertex".into()),
                 buffers: vec![vertex_buffer_layout],
                 shader_defs: shader_defs.clone(),
             },
             fragment: Some(FragmentState {
                 shader: BILLBOARD_SHADER_HANDLE,
-                entry_point: "fragment".into(),
+                entry_point: Some("fragment".into()),
                 shader_defs,
                 targets: vec![Some(ColorTargetState {
                     format: if key.contains(BillboardPipelineKey::HDR) {
@@ -448,8 +448,8 @@ impl<const I: usize> RenderCommand<Transparent3d> for SetBillboardViewBindGroup<
 
     fn render<'w>(
         _item: &Transparent3d,
-        (view_uniform, billboard_mesh_bind_group): ROQueryItem<'w, Self::ViewQuery>,
-        _item_query: Option<ROQueryItem<'w, Self::ItemQuery>>,
+        (view_uniform, billboard_mesh_bind_group): ROQueryItem<'w, '_, Self::ViewQuery>,
+        _item_query: Option<ROQueryItem<'w, '_, Self::ItemQuery>>,
         _param: SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {
@@ -467,8 +467,8 @@ impl<const I: usize> RenderCommand<Transparent3d> for SetBillboardBindGroup<I> {
 
     fn render<'w>(
         _item: &Transparent3d,
-        _view: ROQueryItem<'w, Self::ViewQuery>,
-        billboard_index: Option<ROQueryItem<'w, Self::ItemQuery>>,
+        _view: ROQueryItem<'w, '_, Self::ViewQuery>,
+        billboard_index: Option<ROQueryItem<'w, '_, Self::ItemQuery>>,
         billboard_bind_group: SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {
@@ -492,8 +492,8 @@ impl<const I: usize> RenderCommand<Transparent3d> for SetBillboardTextureBindGro
 
     fn render<'w>(
         _item: &Transparent3d,
-        _view: ROQueryItem<'w, Self::ViewQuery>,
-        billboard_texture: Option<ROQueryItem<'w, Self::ItemQuery>>,
+        _view: ROQueryItem<'w, '_, Self::ViewQuery>,
+        billboard_texture: Option<ROQueryItem<'w, '_, Self::ItemQuery>>,
         images: SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {
@@ -518,8 +518,8 @@ impl RenderCommand<Transparent3d> for DrawBillboardMesh {
 
     fn render<'w>(
         _item: &Transparent3d,
-        _view: ROQueryItem<'w, Self::ViewQuery>,
-        mesh: Option<ROQueryItem<'w, Self::ItemQuery>>,
+        _view: ROQueryItem<'w, '_, Self::ViewQuery>,
+        mesh: Option<ROQueryItem<'w, '_, Self::ItemQuery>>,
         (meshes, mesh_allocator): SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {

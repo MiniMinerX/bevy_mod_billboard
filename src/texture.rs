@@ -1,7 +1,5 @@
 use bevy::{
-    ecs::system::{Commands, Local, Query},
-    render::{sync_world::RenderEntity, view::ViewVisibility, Extract},
-    transform::components::{GlobalTransform, Transform},
+    camera::visibility::ViewVisibility, ecs::system::{Commands, Local, Query}, render::{sync_world::RenderEntity, Extract}, transform::components::{GlobalTransform, Transform}
 };
 
 use crate::{

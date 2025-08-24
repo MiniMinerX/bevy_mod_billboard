@@ -34,7 +34,7 @@ fn setup_billboard(
             TextFont::from_font(fira_sans_regular_handle).with_font_size(60.0),
             TextColor(Color::WHITE),
             Transform::from_xyz(0.0, 1.0, 0.0).with_scale(Vec3::splat(0.0085)),
-            TextLayout::new_with_justify(JustifyText::Center),
+            TextLayout::new_with_justify(Justify::Center),
         ));
 }
 

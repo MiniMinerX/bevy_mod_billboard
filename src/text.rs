@@ -3,17 +3,17 @@ use std::collections::HashMap;
 use crate::pipeline::{RenderBillboardImage, RenderBillboardMesh};
 use crate::utils::calculate_billboard_uniform;
 use crate::{BillboardDepth, BillboardLockAxis, BillboardText, BillboardTextNeedsRerender};
+use bevy::asset::RenderAssetUsages;
 use bevy::color::palettes;
+use bevy::mesh::{Indices, PrimitiveTopology};
 use bevy::platform::collections::HashSet;
 use bevy::prelude::*;
-use bevy::render::mesh::{Indices, PrimitiveTopology};
-use bevy::render::render_asset::RenderAssetUsages;
 use bevy::render::sync_world::RenderEntity;
 use bevy::render::Extract;
 use bevy::sprite::Anchor;
 use bevy::text::{
     ComputedTextBlock, CosmicFontSystem, FontAtlasSets, PositionedGlyph, SwashCache, TextBounds,
-    TextLayoutInfo, TextPipeline, TextReader, YAxisOrientation,
+    TextLayoutInfo, TextPipeline, TextReader,
 };
 use smallvec::SmallVec;
 
@@ -149,7 +149,6 @@ pub(crate) fn update_billboard_text_layout(
                 &mut font_atlas_set_storage,
                 &mut texture_atlases,
                 &mut images,
-                YAxisOrientation::BottomToTop,
                 computed.as_mut(),
                 &mut font_system,
                 &mut swash_cache,
@@ -176,21 +175,21 @@ pub(crate) fn update_billboard_text_layout(
             let alignment_translation = info.size * text_anchor;
 
             let length = info.glyphs.len();
-            let mut textures = HashMap::new();
+            let mut textures: HashMap<AssetId<Image>, (Vec<PositionedGlyph>, (&TextureAtlasLayout, AssetId<Image>))> = HashMap::new();
 
             for glyph in &info.glyphs {
                 // TODO: Maybe with clever caching, could be possible to get rid of or_insert_with,
                 // TODO: though I don't know how much of a gain it would be. Just keeping this as a note.
                 let entry = textures
-                    .entry(glyph.atlas_info.texture.clone_weak())
+                    .entry(glyph.atlas_info.texture.clone())
                     .or_insert_with(|| {
                         (
                             Vec::with_capacity(length),
                             (
                                 texture_atlases
-                                    .get(&glyph.atlas_info.texture_atlas)
+                                    .get(glyph.atlas_info.texture_atlas.clone())
                                     .expect("Atlas should exist"),
-                                glyph.atlas_info.texture.clone_weak(),
+                                glyph.atlas_info.texture.clone(),
                             ),
                         )
                     });
@@ -270,7 +269,7 @@ pub(crate) fn update_billboard_text_layout(
 
                 handles.push(BillboardTextHandleGroup {
                     mesh: meshes.add(mesh),
-                    image: texture,
+                    image: images.get_strong_handle(texture.clone()).expect("Image should exist"),
                 });
             }
         }
