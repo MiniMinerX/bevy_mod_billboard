@@ -22,12 +22,12 @@ fn setup_billboard(mut commands: Commands, asset_server: Res<AssetServer>) {
         ))
         .with_child((
             TextSpan::new("IMPORTANT"),
-            TextFont::from_font(fira_sans_regular_handle.clone()).with_font_size(60.0),
+            TextFont::from(fira_sans_regular_handle.clone()).with_font_size(60.0),
             TextColor::from(Color::Srgba(palettes::css::ORANGE)),
         ))
         .with_child((
             TextSpan::new(" text"),
-            TextFont::from_font(fira_sans_regular_handle.clone()).with_font_size(60.0),
+            TextFont::from(fira_sans_regular_handle.clone()).with_font_size(60.0),
             TextColor::from(Color::WHITE),
         ));
 }

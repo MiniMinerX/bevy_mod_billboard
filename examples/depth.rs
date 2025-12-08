@@ -15,7 +15,7 @@ const TEXT_SCALE: Vec3 = Vec3::splat(0.0085);
 
 fn setup_billboard(mut commands: Commands, asset_server: Res<AssetServer>) {
     let text_font =
-        TextFont::from_font(asset_server.load("FiraSans-Regular.ttf")).with_font_size(60.0);
+        TextFont::from(asset_server.load("FiraSans-Regular.ttf")).with_font_size(60.0);
 
     commands.spawn((
         BillboardText::new("depth enabled"),

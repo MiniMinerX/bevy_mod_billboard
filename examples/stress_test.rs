@@ -42,7 +42,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, mut meshes: Res
     let billboard_texture = BillboardTexture(asset_server.load("rust-logo-256x256.png"));
     let billboard_mesh = BillboardMesh(meshes.add(Rectangle::from_size(Vec2::splat(1.0))));
     let text_font =
-        TextFont::from_font(asset_server.load("FiraSans-Regular.ttf")).with_font_size(60.0);
+        TextFont::from(asset_server.load("FiraSans-Regular.ttf")).with_font_size(60.0);
 
     commands.spawn((
         Camera3d::default(),
